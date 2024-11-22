@@ -1,5 +1,5 @@
 import mssql from "mssql";
-import userSchema from "../models/user.js"; 
+import userSchema from "../models/user.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
@@ -21,7 +21,7 @@ export async function register(req, res) {
 
     // const pool = await mssql.connect(dbConfig);
 
-    const pool = await getDbConnection(); 
+    const pool = await getDbConnection();
 
     const result = await pool.request()
       .input("name", mssql.VarChar, name)
@@ -49,8 +49,6 @@ export async function register(req, res) {
   }
 }
 
-
-
 export async function login(req, res) {
   const { email, password } = req.body;
 
@@ -59,12 +57,10 @@ export async function login(req, res) {
   }
 
   try {
-    // const pool = await mssql.connect(dbConfig);
-    
-    const pool = await getDbConnection();  
+    const pool = await getDbConnection();
 
-    if (!pool){
-      return res.status(400).json({message: "Echec de la connexion à la base de données."})
+    if (!pool) {
+      return res.status(400).json({ message: "Echec de la connexion à la base de données." })
     }
 
     // Vérifier si l'utilisateur existe
@@ -85,17 +81,14 @@ export async function login(req, res) {
     if (!passwordMatch) {
       return res.status(401).json({ error: "Email ou mot de passe invalide." });
     }
-
+    // REGARDER POUR REFAIRE LE TOKEN => STACK L'ID USER EN CLAIR
     // Générer un token JWT
-    const token = jwt.sign(
-      { userId: user.userId, name: user.name },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, { expiresIn: "1h" }
     );
 
     res.status(200).json({
       message: "Connexion réussie.",
-      token,
+      token
     });
 
     pool.close();
