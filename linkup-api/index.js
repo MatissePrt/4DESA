@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
-import UserRoute from "./routes/userRoute.js";
+import userRouter from "./routes/userRouter.js";
+import creatorRouter from "./routes/creatorRouter.js";
 import { getDbConnection } from "./config/db.js";
 
 const result = dotenv.config();
@@ -18,7 +19,8 @@ app.use(express.json()); // Pour analyser les requêtes au format JSON
 app.use(express.urlencoded({ extended: true })); // Pour analyser les données URL encodées
 
 // Routes
-app.use("/api/users", UserRoute);
+app.use("/api", userRouter);
+app.use("/api", creatorRouter);
 
 // Vérifier la connexion à la base de données
 getDbConnection().catch((err) => {

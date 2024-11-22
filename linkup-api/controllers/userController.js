@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { getDbConnection } from "../config/db.js";
 dotenv.config();
 
-export async function register(req, res) {
+export async function create(req, res) {
   const { name, email, password } = req.body;
 
   // Valider les données d'entrée
@@ -18,8 +18,6 @@ export async function register(req, res) {
   try {
     // Hacher le mot de passe avant de le stocker
     const hashedPassword = await bcrypt.hash(password, 10); // Le "10" est le facteur de coût (sécurité)
-
-    // const pool = await mssql.connect(dbConfig);
 
     const pool = await getDbConnection();
 
@@ -83,7 +81,6 @@ export async function login(req, res) {
     if (!passwordMatch) {
       return res.status(401).json({ error: "Email ou mot de passe invalide." });
     }
-    // REGARDER POUR REFAIRE LE TOKEN => STACK L'ID USER EN CLAIR
     // Générer un token JWT
     const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, { expiresIn: "1h" }
     );

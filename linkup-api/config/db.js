@@ -12,6 +12,8 @@ const dbConfig = {
   options: {
     encrypt: true, // Utilisé pour Azure SQL
     enableArithAbort: true, // Recommandé par mssql
+    connectTimeout: 30000, 
+    requestTimeout: 30000,
   },
 };
 

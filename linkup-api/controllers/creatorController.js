@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { getDbConnection } from "../config/db.js";
 dotenv.config();
 
-export async function createCreator(req, res) {
+export async function create(req, res) {
 
   const { userId } = req.params;
 
