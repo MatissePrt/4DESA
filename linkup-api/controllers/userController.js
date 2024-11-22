@@ -49,6 +49,8 @@ export async function register(req, res) {
   }
 }
 
+
+
 export async function login(req, res) {
   const { email, password } = req.body;
 
@@ -96,4 +98,40 @@ export async function login(req, res) {
     console.error("Database error:", err);
     res.status(500).json({ error: "Erreur interne du serveur." });
   }
-};
+}
+
+export async function update(req, res) {
+  const { name, email } = req.body;
+  const userId = res.locals.userId;
+  if (!userId) {
+    return res.status(401).json({ error: "Action non autorisée." });
+  }
+  // Valider les données d'entrée
+  const { error } = userSchema.validate({ name, email});
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  try {
+
+    const pool = await getDbConnection();
+
+    const result = await pool.request()
+      .input("name", mssql.VarChar, name)
+      .input("email", mssql.VarChar, email)
+      .query(`
+          UPDATE [User] 
+          SET name = @name, email = @email
+          WHERE userId = @userId
+        `);
+
+    res.status(200).json({
+      message: "Utilisateur mis à jour avec succès.",
+    });
+
+    pool.close();
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).json({ error: "Erreur interne du serveur." });
+  }
+}

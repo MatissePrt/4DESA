@@ -1,22 +1,23 @@
 import jwt from "jsonwebtoken";
 import mssql from "mssql";
-import { getDbConnection } from "../config/db.js"; 
+import {getDbConnection} from "../config/db.js";
 
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const jwtSecret = process.env.JWT_SECRET
 
 export async function authentication(req, res, next) {
     const token = req.headers.authorization;
-    
+
     if (!token) {
         return res.status(401).json({
             error: "Le jeton est manquant.",
         });
     }
 
-    if (!jwtSecret) { 
+    if (!jwtSecret) {
         return res.status(401).json({
             error: "JwtSecret inaccessible.",
         })
@@ -42,13 +43,13 @@ export async function authentication(req, res, next) {
             const pool = await getDbConnection();
 
             if (!pool) {
-                return res.status(500).json({ error: "Erreur de connexion à la base de données." });
+                return res.status(500).json({error: "Erreur de connexion à la base de données."});
             }
 
             // Vérifiez si l'utilisateur existe dans la base de données
             const result = await pool.request()
                 .input("userId", mssql.Int, userId)
-                .query("SELECT userId, name FROM [User] WHERE userId = @userId");
+                .query("SELECT userId FROM [User] WHERE userId = @userId");
 
             if (result.recordset.length === 0) {
                 return res.status(401).json({
@@ -59,7 +60,7 @@ export async function authentication(req, res, next) {
             const user = result.recordset[0];
 
             // Attachez l'utilisateur au contexte de la requête
-            res.locals.user = { userId: user.userId, name: user.name };
+            res.locals.userId = user.userId;
 
             return next(); // Passez au middleware suivant
         } catch (error) {
