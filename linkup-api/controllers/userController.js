@@ -101,13 +101,16 @@ export async function login(req, res) {
 }
 
 export async function update(req, res) {
-  const { name, email } = req.body;
+  const { name, email,password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10); // Le "10" est le facteur de coût (sécurité)
+
   const userId = res.locals.userId;
   if (!userId) {
     return res.status(401).json({ error: "Action non autorisée." });
   }
   // Valider les données d'entrée
-  const { error } = userSchema.validate({ name, email});
+
+  const { error } = userSchema.validate({ name, email, password });
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
@@ -119,14 +122,15 @@ export async function update(req, res) {
     const result = await pool.request()
       .input("name", mssql.VarChar, name)
       .input("email", mssql.VarChar, email)
+      .input("password", mssql.Int, hashedPassword)
       .query(`
           UPDATE [User] 
-          SET name = @name, email = @email
+          SET name = @name, email = @email , password = @password
           WHERE userId = @userId
         `);
 
-    res.status(200).json({
-      message: "Utilisateur mis à jour avec succès.",
+    res.status(201).json({
+      message: "Utilisateur mis a jour avec succès.",
     });
 
     pool.close();
