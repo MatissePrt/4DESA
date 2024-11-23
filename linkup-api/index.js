@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
 import creatorRouter from "./routes/creatorRouter.js";
+import postRouter from "./routes/postRouter.js";
 import { getDbConnection } from "./config/db.js";
 
 const result = dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true })); // Pour analyser les données U
 // Routes
 app.use("/api", userRouter);
 app.use("/api", creatorRouter);
+app.use("/api", postRouter);
 
 // Vérifier la connexion à la base de données
 getDbConnection().catch((err) => {
