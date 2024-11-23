@@ -58,7 +58,6 @@ export async function create(req, res) {
 
 
     //Si le type est une image ou video, vérifier si le fichier est présent
-    // Si le type est "image" ou "video", gérer l'upload
     if (type === "image" || type === "video") {
         if (!req.file) {
             return res.status(400).json({ error: "Fichier manquant." });
@@ -88,6 +87,9 @@ export async function create(req, res) {
     } else if (type === "text") {
         if (blobUrl) {
             return res.status(400).json({error: "Le champ 'blobUrl' n'est pas requis pour le type 'text'."});
+        }
+        if (!content) {
+            return res.status(400).json({error: "Le champ 'content' est requis pour le type 'text'."});
         }
         blobUrl = null;
     }
@@ -130,8 +132,7 @@ export async function create(req, res) {
 }
 
 export async function readOne(req, res) {
-        const {userId} = req.params;
-        const {postId} = req.body;
+        const {userId, creatorId, postId} = req.params;
         let isReadible = false;
 
 
@@ -158,37 +159,71 @@ export async function readOne(req, res) {
         }
 
         //Vérification de si le créateur est en public
-        //Si oui, retourner le post
-
-
-        //Sinon, vérifier si le créateur est le créateur du post
-        //Sinon, vérifier que le requeteur est abonné au créateur
 
         try {
             const pool = await getDbConnection();
 
             const result = await pool.request()
-                .input("postId", mssql.Int, postId)
+                .input("creatorId", mssql.Int, creatorId)
                 .query(`
-            SELECT p.PostId, p.CreatorId, p.Type, p.Content, p.BlobUrl, p.CreationDate
+            SELECT c.IsPublic
+            FROM Creator c
+            WHERE c.CreatorId = @creatorId
+          `);
+
+            if (result.recordset.length === 0) {
+                return res.status(404).json({
+                    error: "Créateur non trouvé."
+                });
+            }
+
+            const creator = result.recordset[0];
+
+            if (creator.IsPublic) {
+                isReadible = true;
+            }
+            else {
+                console.error("Le créateur n'est pas public.");
+            }
+
+            pool.close();
+        }
+        catch (err) {
+            console.error("Database error:", err);
+            res.status(500).json({error: "Erreur interne du serveur."});
+        }
+
+
+
+        //Sinon, vérifier que le requeteur est abonné au créateur
+
+        if (isReadible) {
+            try {
+                const pool = await getDbConnection();
+
+                const result = await pool.request()
+                    .input("postId", mssql.Int, postId)
+                    .query(`
+            SELECT p.PostId, p.CreatorId, p.Type, p.Content, p.BlobUrl, p.CreatedAt, p.UpdatedAt
             FROM Post p
             WHERE p.PostId = @postId
         `);
 
-            if (result.recordset.length === 0) {
-                return res.status(404).json({
-                    error: "Post non trouvé."
-                });
+                if (result.recordset.length === 0) {
+                    return res.status(404).json({
+                        error: "Post non trouvé."
+                    });
+                }
+
+                const post = result.recordset[0];
+
+                res.json(post);
+
+                pool.close();
+            } catch (err) {
+                console.error("Database error:", err);
+                res.status(500).json({error: "Erreur interne du serveur."});
             }
-
-            const post = result.recordset[0];
-
-            res.json(post);
-
-            pool.close();
-        } catch (err) {
-            console.error("Database error:", err);
-            res.status(500).json({error: "Erreur interne du serveur."});
         }
 
 
