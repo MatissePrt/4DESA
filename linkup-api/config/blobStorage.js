@@ -1,13 +1,14 @@
-const { BlobServiceClient } = require('@azure/storage-blob');
+import { BlobServiceClient } from '@azure/storage-blob';
+import dotenv from 'dotenv';
 
-// Remplace par ta chaîne de connexion Azure Blob Storage
-const AZURE_STORAGE_CONNECTION_STRING = "Ta_chaine_de_connexion";
+dotenv.config();
 
-if (!AZURE_STORAGE_CONNECTION_STRING) {
+const AZURE_STORAGE_CONNECTION = process.env.AZURE_STORAGE_CONNECTION_STRING;
+
+if (!AZURE_STORAGE_CONNECTION) {
     throw new Error('Azure Storage Connection string not found');
 }
 
-// Initialiser le client BlobService
-const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION);
 
-module.exports = { blobServiceClient };
+export { blobServiceClient };
