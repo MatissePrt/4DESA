@@ -6,7 +6,7 @@ const userRouter = express.Router();
 
 // Route pour enregistrer un utilisateur
 userRouter.post("/users/create", create);
-userRouter.post("/users/:userId/update", authentication, update);
+userRouter.put("/users/:userId/update", authentication, update);
 // Mettre les nouvelles routes au dessus de login
 userRouter.post("/users/login", login);
 

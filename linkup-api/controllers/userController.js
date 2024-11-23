@@ -98,41 +98,74 @@ export async function login(req, res) {
 }
 
 export async function update(req, res) {
-  const { name, email,password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10); // Le "10" est le facteur de coût (sécurité)
+  const { userId } = req.params;
 
-  const userId = res.locals.userId;
-  if (!userId) {
-    return res.status(401).json({ error: "Action non autorisée." });
+  // Vérification si userId et res.locals.userId sont des nombres
+  if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
+    return res.status(400).json({
+      error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" ne sont pas des nombres valides.`
+    });
   }
-  // Valider les données d'entrée
 
-  const { error } = userSchema.validate({ name, email, password });
+  // Vérification si userId correspond à res.locals.userId
+  if (Number(userId) !== Number(res.locals.userId)) {
+    return res.status(403).json({
+      error: "Non autorisé."
+    });
+  }
+
+  const { name, email, password } = req.body;
+
+  // Valider les données fournies (nom, email, mot de passe)
+  const { error } = userSchema.validate({ name, email, password }, { abortEarly: false });
   if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+    return res.status(400).json({
+      error: error.details.map(err => err.message)
+    });
   }
 
   try {
-
     const pool = await getDbConnection();
 
-    const result = await pool.request()
-      .input("name", mssql.VarChar, name)
-      .input("email", mssql.VarChar, email)
-      .input("password", mssql.Int, hashedPassword)
-      .query(`
-          UPDATE [User] 
-          SET name = @name, email = @email , password = @password
-          WHERE userId = @userId
-        `);
+    // Chiffrer le mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    res.status(201).json({
-      message: "Utilisateur mis a jour avec succès.",
+    const result = await pool.request()
+      .input("userId", mssql.Int, userId)
+      .input("name", mssql.NVarChar(50), name)
+      .input("email", mssql.NVarChar(320), email)
+      .input("Password", mssql.NVarChar(255), hashedPassword)
+      .query(
+        `
+        UPDATE [User]
+        SET [Name] = @name, Email = @email, [Password] = @Password
+        WHERE UserId = @userId
+      `
+      );
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({
+        error: "Utilisateur non trouvé."
+      });
+    }
+
+    res.status(200).json({
+      message: "Utilisateur mis à jour avec succès."
     });
 
     pool.close();
   } catch (err) {
     console.error("Database error:", err);
-    res.status(500).json({ error: "Erreur interne du serveur." });
+
+    // Gestion des erreurs SQL spécifiques
+    if (err.code === "EREQUEST" && err.message.includes("UNIQUE KEY constraint")) {
+      return res.status(409).json({
+        error: "Cet email est déjà utilisé par un autre utilisateur."
+      });
+    }
+
+    res.status(500).json({
+      error: "Erreur interne du serveur."
+    });
   }
 }

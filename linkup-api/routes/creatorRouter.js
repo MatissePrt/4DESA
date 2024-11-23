@@ -5,7 +5,7 @@ import { authentication } from "../middlewares/authentication.js";
 const creatorRouter = express.Router();
 
 // Route pour créer un créateur
-creatorRouter.post("/users/:userId/creators/create", authentication, create);
+creatorRouter.post("/users/:userId/creators/", authentication, create);
 creatorRouter.get("/users/:userId/creators/readAll", authentication, readAll); 
 creatorRouter.get("/users/:userId/creators/:creatorId/readOne", authentication, readOne); 
 creatorRouter.put("/users/:userId/creators/:creatorId/update", authentication, update);
