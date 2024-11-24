@@ -229,15 +229,105 @@ export async function readOne(req, res) {
 
 }
 
-export async function readAll() {
+export async function readAll(req, res) {
+    const {userId, creatorId} = req.params;
+
+    // Vérification si userId et res.locals.userId sont des nombres
+    if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
+        return res.status(400).json({
+            error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" ne sont pas des nombres adaptés.`
+        });
+    }
+
+    // Vérification si userId correspond à res.locals.userId
+    if (Number(userId) !== Number(res.locals.userId)) {
+        return res.status(403).json({
+            error: `Non autorisé.`
+        });
+    }
+
+    try {
+        const pool = await getDbConnection();
+
+        // Requête pour récupérer les posts
+        const result = await pool.request()
+            .input("creatorId", mssql.Int, creatorId)
+            .query(`
+        SELECT p.PostId, p.CreatorId, p.Type, p.Content, p.BlobUrl, p.CreatedAt, p.UpdatedAt
+        FROM Post p
+        WHERE p.CreatorId = @creatorId
+      `);
+
+        res.json(result.recordset);
+
+        pool.close();
+    } catch (err) {
+        console.error("Database error:", err);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+
 
 
 }
 
-export async function update() {
+export async function deleteOne(req, res) {
+    const { userId, creatorId, postId } = req.params;
 
-}
+    // Vérification si userId et res.locals.userId sont des nombres
+    if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
+        return res.status(400).json({
+            error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" n'est pas un nombre adapté.`
+        });
+    }
 
-export async function remove() {
+    if (Number(userId) !== Number(res.locals.userId)) {
+        return res.status(403).json({ error: "Non autorisé." });
+    }
 
+    // Vérification si postId est un nombre
+    if (isNaN(Number(postId))) {
+        return res.status(400).json({
+            error: `postId: "${postId}" n'est pas un nombre adapté.`
+        });
+    }
+
+    try {
+        // Suppression du media associé au post
+        const pool = await getDbConnection();
+        const result = await pool.request()
+            .input("postId", mssql.Int, postId)
+            .query(`SELECT p.BlobUrl FROM Post p WHERE p.PostId = @postId`);
+
+        if (result.recordset.length === 0) {
+            pool.close();
+            return res.status(404).json({ error: "Post non trouvé." });
+        }
+
+        const post = result.recordset[0];
+        if (post.BlobUrl) {
+            const containerName = "media";
+            const containerClient = blobServiceClient.getContainerClient(containerName);
+            const blobName = path.basename(post.BlobUrl);
+            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+            await blockBlobClient.delete();
+        }
+        pool.close();
+
+        // Suppression du post
+        const poolDelete = await getDbConnection();
+        const deleteResult = await poolDelete.request()
+            .input("postId", mssql.Int, postId)
+            .query(`DELETE FROM Post WHERE PostId = @postId`);
+
+        poolDelete.close();
+
+        if (deleteResult.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: "Post non trouvé." });
+        }
+
+        return res.json({ message: "Post et media associé (si existant) supprimés avec succès." });
+    } catch (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Erreur interne du serveur." });
+    }
 }
