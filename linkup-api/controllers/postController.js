@@ -331,3 +331,57 @@ export async function deleteOne(req, res) {
         return res.status(500).json({ error: "Erreur interne du serveur." });
     }
 }
+
+export async function deleteAll(req, res) {
+    const { userId, creatorId } = req.params;
+
+    // Vérification si userId et res.locals.userId sont des nombres
+    if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
+        return res.status(400).json({
+            error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" n'est pas un nombre adapté.`
+        });
+    }
+
+    if (Number(userId) !== Number(res.locals.userId)) {
+        return res.status(403).json({ error: "Non autorisé." });
+    }
+
+    try {
+        const pool = await getDbConnection();
+
+        // Récupération des URLs des médias associés aux posts
+        const result = await pool.request()
+            .input("creatorId", mssql.Int, creatorId)
+            .query(`
+        SELECT p.BlobUrl
+        FROM Post p
+        WHERE p.CreatorId = @creatorId
+      `);
+
+        const containerName = "media";
+        const containerClient = blobServiceClient.getContainerClient(containerName);
+
+        for (const post of result.recordset) {
+            if (post.BlobUrl) {
+                const blobName = path.basename(post.BlobUrl);
+                const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+                await blockBlobClient.delete();
+            }
+        }
+
+        pool.close();
+
+        // Suppression des posts
+        const poolDelete = await getDbConnection();
+        const deleteResult = await poolDelete.request()
+            .input("creatorId", mssql.Int, creatorId)
+            .query(`DELETE FROM Post WHERE CreatorId = @creatorId`);
+
+        poolDelete.close();
+
+        return res.json({ message: "Posts et médias associés supprimés avec succès." });
+    } catch (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+}
