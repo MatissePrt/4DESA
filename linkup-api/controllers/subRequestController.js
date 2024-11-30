@@ -53,6 +53,36 @@ export async function create(req, res) {
             })
         }
 
+        const subRequestCheckPublic = await pool.request()
+            .input("creatorId", mssql.Int, creatorId)
+            .query(`
+        SELECT 1
+        FROM Creator
+        WHERE CreatorId = @creatorId AND IsPublic = 1
+            `)
+
+        if (subRequestCheckPublic.recordset.length === 1) {
+            // Créer le `Subscriber`
+            await pool.request()
+                .input("userId", mssql.Int, userId)
+                .input("creatorId", mssql.Int, creatorId)
+                .input("hasAccess", mssql.Bit, 1) // Optionnel : ici toujours "true" (1)
+                .query(`
+                    MERGE INTO Subscriber AS target
+                    USING (SELECT @userId AS UserId, @creatorId AS CreatorId) AS source
+                    ON (target.UserId = source.UserId AND target.CreatorId = source.CreatorId)
+                    WHEN MATCHED THEN
+                        UPDATE SET HasAccess = 1
+                    WHEN NOT MATCHED THEN
+                        INSERT (UserId, CreatorId, HasAccess)
+                        VALUES (@userId, @creatorId, 1);
+                `);
+
+            return res.status(201).json({
+                message: "Abonné créé avec succès.",
+            });
+        }
+
         // Vérifier si une sous-demande existe déjà pour cet utilisateur et ce créateur
         const subRequestCheck = await pool.request()
             .input("userId", mssql.Int, userId)
@@ -221,7 +251,7 @@ export async function readOne(req, res) {
 
 export async function deleteSubRequest(req, res) {
     const { userId, creatorId, subRequestId } = req.params;
-    const { hasAccept: hasAccepted } = req.body;
+    const { hasAccepted } = req.body;
 
     // Validation des paramètres et du corps de la requête
     if (
@@ -237,7 +267,7 @@ export async function deleteSubRequest(req, res) {
 
     if (typeof hasAccepted !== "boolean") {
         return res.status(400).json({
-            error: `Le champ "hasAccept" doit être un booléen.`,
+            error: `Le champ "hasAccepted" doit être un booléen.`,
         });
     }
 

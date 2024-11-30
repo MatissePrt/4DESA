@@ -4,6 +4,7 @@ import userRouter from "./routes/userRouter.js";
 import creatorRouter from "./routes/creatorRouter.js";
 import postRouter from "./routes/postRouter.js";
 import subRequestRouter from "./routes/subRequestRouter.js"
+import subscriberRouter from "./routes/subscriberRouter.js";
 import { getDbConnection } from "./config/db.js";
 
 const result = dotenv.config();
@@ -24,7 +25,8 @@ app.use(express.urlencoded({ extended: true })); // Pour analyser les données U
 app.use("/api", userRouter);
 app.use("/api", creatorRouter);
 app.use("/api", postRouter);
-app.use("/api", subRequestRouter)
+app.use("/api", subRequestRouter);
+app.use("/api", subscriberRouter)
 
 // Vérifier la connexion à la base de données
 getDbConnection().catch((err) => {
