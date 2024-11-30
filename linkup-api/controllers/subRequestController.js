@@ -29,14 +29,14 @@ export async function create(req, res) {
         });
     }
 
+    const pool = await getDbConnection();
     try {
-        const pool = await getDbConnection();
 
         // Vérifier que le CreatorId existe et appartient à cet utilisateur
         const creatorCheck = await pool.request()
             .input("creatorId", mssql.Int, creatorId)
             .query(`
-        SELECT 1
+        SELECT UserId
         FROM Creator
         WHERE CreatorId = @creatorId
       `);
@@ -45,6 +45,12 @@ export async function create(req, res) {
             return res.status(404).json({
                 error: "Créateur non trouvé."
             });
+        }
+
+        if (creatorCheck.recordset[0].UserId === Number(userId)) {
+            return res.status(404).json({
+                error: "Un utilisateur ne peux pas se suivre lui même."
+            })
         }
 
         // Vérifier si une sous-demande existe déjà pour cet utilisateur et ce créateur
@@ -80,6 +86,7 @@ export async function create(req, res) {
 
         pool.close();
     } catch (err) {
+        pool.close();
         console.error("Database error:", err);
 
         // Vérification des erreurs spécifiques SQL
@@ -94,6 +101,209 @@ export async function create(req, res) {
 }
 
 export async function readAll(req, res) {
-    
+    const { userId, creatorId } = req.params;
 
+    // Vérification si userId, creatorId, et res.locals.userId sont des nombres
+    if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId)) || isNaN(Number(creatorId))) {
+        return res.status(400).json({
+            error: `userId: "${userId}", res.locals.userId: "${res.locals.userId}", ou creatorId: "${creatorId}" n'est pas un nombre adapté.`
+        });
+    }
+
+    // Vérification si userId correspond à res.locals.userId
+    if (Number(userId) !== Number(res.locals.userId)) {
+        return res.status(403).json({
+            error: `Non autorisé.`
+        });
+    }
+
+    let pool;
+    try {
+        pool = await getDbConnection();
+
+        // Vérifier si le créateur existe
+        const creatorCheck = await pool.request()
+            .input("creatorId", mssql.Int, creatorId)
+            .input("userId", mssql.Int, userId)
+            .query(`
+          SELECT CreatorId
+          FROM Creator
+          WHERE CreatorId = @creatorId AND UserId = @userId
+        `);
+
+        if (creatorCheck.recordset.length === 0) {
+            return res.status(404).json({ error: "Créateur non trouvé." });
+        }
+
+        // Récupérer toutes les sous-demandes pour le créateur
+        const subRequests = await pool.request()
+            .input("creatorId", mssql.Int, creatorId)
+            .query(`
+          SELECT 
+            SubRequestId,
+            UserId,
+            CreatorId
+          FROM SubRequest
+          WHERE CreatorId = @creatorId
+        `);
+
+        // Retourner les résultats
+        return res.status(200).json({
+            message: "Sous-demandes récupérées avec succès.",
+            data: subRequests.recordset,
+        });
+    } catch (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Erreur interne du serveur." });
+    } finally {
+        if (pool) {
+            pool.close(); // Assurer la fermeture de la connexion
+        }
+    }
+}
+
+export async function readOne(req, res) {
+    const { userId, creatorId, subRequestId } = req.params;
+
+    // Vérification si userId, creatorId, et res.locals.userId sont des nombres
+    if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId)) || isNaN(Number(creatorId)) || isNaN(Number(subRequestId))) {
+        return res.status(400).json({
+            error: `userId: "${userId}", res.locals.userId: "${res.locals.userId}", subRequestId: "${subRequestId}", ou creatorId: "${creatorId}" n'est pas un nombre adapté.`
+        });
+    }
+
+    // Vérification si userId correspond à res.locals.userId
+    if (Number(userId) !== Number(res.locals.userId)) {
+        return res.status(403).json({
+            error: `Non autorisé.`
+        });
+    }
+
+    let pool;
+    try {
+        pool = await getDbConnection();
+
+        // Récupérer la sous-demande spécifique
+        const subRequest = await pool.request()
+            .input("subRequestId", mssql.Int, subRequestId)
+            .query(`
+          SELECT 
+            SubRequestId,
+            UserId,
+            CreatorId
+          FROM SubRequest
+          WHERE SubRequestId = @subRequestId
+        `);
+
+        // Vérifier si la sous-demande existe
+        if (subRequest.recordset.length === 0) {
+            return res.status(404).json({
+                error: "Sous-demande non trouvée.",
+            });
+        }
+
+        // Retourner les informations de la sous-demande
+        return res.status(200).json({
+            message: "Sous-demande récupérée avec succès.",
+            data: subRequest.recordset[0],
+        });
+    } catch (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({
+            error: "Erreur interne du serveur.",
+        });
+    } finally {
+        if (pool) {
+            pool.close(); // Assurer la fermeture de la connexion
+        }
+    }
+}
+
+export async function deleteSubRequest(req, res) {
+    const { userId, creatorId, subRequestId } = req.params;
+    const { hasAccept: hasAccepted } = req.body;
+
+    // Validation des paramètres et du corps de la requête
+    if (
+        isNaN(Number(userId)) ||
+        isNaN(Number(res.locals.userId)) ||
+        isNaN(Number(creatorId)) ||
+        isNaN(Number(subRequestId))
+    ) {
+        return res.status(400).json({
+            error: `userId: "${userId}", res.locals.userId: "${res.locals.userId}", creatorId: "${creatorId}", ou subRequestId: "${subRequestId}" n'est pas valide.`,
+        });
+    }
+
+    if (typeof hasAccepted !== "boolean") {
+        return res.status(400).json({
+            error: `Le champ "hasAccept" doit être un booléen.`,
+        });
+    }
+
+    // Vérification des droits d'accès
+    if (Number(userId) !== Number(res.locals.userId)) {
+        return res.status(403).json({ error: "Non autorisé." });
+    }
+
+    let pool;
+    try {
+        pool = await getDbConnection();
+
+        // Vérifier si la sous-demande existe
+        const subRequestCheck = await pool.request()
+            .input("subRequestId", mssql.Int, subRequestId)
+            // .input("userId", mssql.Int, userId)
+            .input("creatorId", mssql.Int, creatorId)
+            .query(`
+                SELECT SubRequestId
+                FROM SubRequest
+                WHERE SubRequestId = @subRequestId
+                AND CreatorId = @creatorId
+            `); // AND UserId = @userId
+
+
+        if (subRequestCheck.recordset.length === 0) {
+            return res.status(404).json({ error: "Sous-demande non trouvée." });
+        }
+
+        if (hasAccepted) {
+            // Créer ou mettre à jour un abonné
+            await pool.request()
+                .input("userId", mssql.Int, userId)
+                .input("creatorId", mssql.Int, creatorId)
+                .input("hasAccess", mssql.Bit, 1)
+                .query(`
+                    MERGE INTO Subscriber AS target
+                    USING (SELECT @userId AS UserId, @creatorId AS CreatorId) AS source
+                    ON (target.UserId = source.UserId AND target.CreatorId = source.CreatorId)
+                    WHEN MATCHED THEN
+                        UPDATE SET HasAccess = @hasAccess
+                    WHEN NOT MATCHED THEN
+                        INSERT (UserId, CreatorId, HasAccess)
+                        VALUES (@userId, @creatorId, @hasAccess);
+                `);
+        }
+
+        // Supprimer la sous-demande
+        await pool.request()
+            .input("subRequestId", mssql.Int, subRequestId)
+            .query(`
+                DELETE FROM SubRequest
+                WHERE SubRequestId = @subRequestId
+            `);
+
+        res.status(200).json({
+            message: hasAccepted
+                ? "Sous-demande acceptée et abonné mis à jour ou créé."
+                : "Sous-demande refusée et supprimée.",
+        });
+    } catch (err) {
+        console.error("Database error:", err);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    } finally {
+        if (pool) {
+            pool.close();
+        }
+    }
 }

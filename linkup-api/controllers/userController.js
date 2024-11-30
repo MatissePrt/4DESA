@@ -47,8 +47,6 @@ export async function create(req, res) {
   }
 }
 
-
-
 export async function login(req, res) {
   const { email, password } = req.body;
 

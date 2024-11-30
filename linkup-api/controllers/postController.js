@@ -74,7 +74,11 @@ export async function create(req, res) {
             // Uploader le fichier
 
             const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-            await blockBlobClient.upload(req.file.buffer, req.file.size);
+            await blockBlobClient.upload(req.file.buffer, req.file.size, {
+                blobHTTPHeaders: {
+                    blobContentType: req.file.mimetype // Définit le bon Content-Type (ex: image/png, video/mp4)
+                }
+            });
 
             // Générer l'URL publique
             blobUrl = blockBlobClient.url;
