@@ -10,11 +10,7 @@ import { initBlobClient } from "./config/blobStorage.js";
 // Initialisation de l'application
 const app = express();
 
-app.listen(() => {
-    console.log(`Server is running on http://localhost:${process.env.PORT}`);
-});
-
-const PORT =  process.env.PORT || 3000
+const PORT =  process.env.PORT
 
 // Middleware
 app.use(express.json()); // Pour analyser les requêtes au format JSON
