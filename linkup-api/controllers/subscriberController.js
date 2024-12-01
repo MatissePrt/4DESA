@@ -196,14 +196,23 @@ export async function deleteSubscriber(req, res) {
             return res.status(404).json({ error: "Créateur non trouvé ou non associé à cet utilisateur." });
         }
 
+        const userIdFromCreator = await pool.request()
+            .input("creatorId", mssql.Int, creatorId)
+            .input("userId", mssql.Int, userId)
+            .query(`
+                Select userId FROM Creator WHERE CreatorId = @creatorId
+            `);
+
         // Vérification que l'abonné existe
         const subscriberCheck = await pool.request()
-            .input("subcriberId", mssql.Int, subcriberId)
+            .input("subscriberId", mssql.Int, subcriberId)
             .input("creatorId", mssql.Int, creatorId)
+            .input("userId", mssql.Int, userId)
             .query(`
                 SELECT 1
                 FROM Subscriber
-                WHERE SubscriberId = @subcriberId AND CreatorId = @creatorId
+                WHERE SubscriberId = @subscriberId AND CreatorId = @creatorId 
+                AND (UserId = @userId OR CreatorId = (Select CreatorId FROM Creator WHERE UserId = @userId))
             `);
 
         if (subscriberCheck.recordset.length === 0) {

@@ -157,7 +157,6 @@ export async function update(req, res) {
   }
 }
 
-
 export async function readOne(req, res) {
   const { userId } = req.params;
 

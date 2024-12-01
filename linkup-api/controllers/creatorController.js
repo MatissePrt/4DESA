@@ -226,7 +226,7 @@ export async function update(req, res) {
   }
 }
 
-export async function deleteCreator(req, res){
+export async function deleteCreator(req, res) {
   const { userId, creatorId } = req.params;
 
   // Vérification si userId, res.locals.userId et creatorId sont des nombres
@@ -245,6 +245,21 @@ export async function deleteCreator(req, res){
 
   try {
     const pool = await getDbConnection();
+
+    await pool.request()
+      .input("creatorId", mssql.Int, creatorId)
+      .query(`
+        DELETE FROM Subscriber
+        WHERE CreatorId = @creatorId;
+      `);
+
+    // Suppression des SubRequests associés
+    await pool.request()
+      .input("creatorId", mssql.Int, creatorId)
+      .query(`
+        DELETE FROM SubRequest
+        WHERE CreatorId = @creatorId;
+      `);
 
     // Suppression du créateur
     const result = await pool.request()
