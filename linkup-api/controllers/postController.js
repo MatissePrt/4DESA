@@ -1,13 +1,11 @@
 import mssql from "mssql";
 import postSchema from "../models/post.js";
-import dotenv from "dotenv";
 import {getDbConnection} from "../config/db.js";
 import { blobServiceClient } from "../config/blobStorage.js";
 import { v4 as uuidv4 } from "uuid"; // Pour générer des noms uniques
 import path from "path";
 
 
-dotenv.config();
 
 export async function create(req, res) {
 

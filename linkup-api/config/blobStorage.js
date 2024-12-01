@@ -1,14 +1,17 @@
 import { BlobServiceClient } from '@azure/storage-blob';
-import dotenv from 'dotenv';
+import getSecrets from "./config.js";
 
-dotenv.config();
+let blobServiceClient;
 
-const AZURE_STORAGE_CONNECTION = process.env.AZURE_STORAGE_CONNECTION_STRING;
-
-if (!AZURE_STORAGE_CONNECTION) {
-    throw new Error('Azure Storage Connection string not found');
-}
-
-const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION);
-
-export { blobServiceClient };
+async function initBlobClient() {
+    const secrets = await getSecrets();
+    const AZURE_STORAGE_CONNECTION = secrets.AZURE_STORAGE_CONNECTION;
+  
+    if (!AZURE_STORAGE_CONNECTION) {
+      throw new Error("Azure Storage Connection string not found");
+    }
+  
+    blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION);
+  }
+  
+  export { blobServiceClient, initBlobClient };

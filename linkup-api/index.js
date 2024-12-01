@@ -1,21 +1,17 @@
 import express from "express";
-import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
 import creatorRouter from "./routes/creatorRouter.js";
 import postRouter from "./routes/postRouter.js";
 import subRequestRouter from "./routes/subRequestRouter.js"
 import subscriberRouter from "./routes/subscriberRouter.js";
 import { getDbConnection } from "./config/db.js";
+import { initBlobClient } from "./config/blobStorage.js";
+import getSecrets from "./config/config.js";
 
-const result = dotenv.config();
-if (result.error) {
-    console.error("Erreur lors du chargement du fichier .env :", result.error);
-    process.exit(1);
-}
 
 // Initialisation de l'application
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = await getSecrets('PORT')
 
 // Middleware
 app.use(express.json()); // Pour analyser les requêtes au format JSON
@@ -28,17 +24,22 @@ app.use("/api", postRouter);
 app.use("/api", subRequestRouter);
 app.use("/api", subscriberRouter)
 
-
 //Message de bienvenue
 app.get("/", (req, res) => {
     res.send("Bienvenue sur notre linkup-api!");
 });
 
-// Vérifier la connexion à la base de données
-getDbConnection().catch((err) => {
-    console.error("Erreur lors de la connexion à la base de données :", err);
-    process.exit(1); // Arrêter le serveur si la connexion échoue
-});
+async function initApp() {
+    try {
+        await initBlobClient();
+        await getDbConnection();
+        console.log("Application initialisée avec succès.");
+    } catch (error) {
+        console.error("Erreur lors de l'initialisation de l'application:", error);
+    }
+}
+
+initApp();
 
 // Lancer le serveur
 app.listen(PORT, () => {

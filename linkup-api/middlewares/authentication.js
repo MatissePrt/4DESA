@@ -1,12 +1,10 @@
 import jwt from "jsonwebtoken";
 import mssql from "mssql";
-import {getDbConnection} from "../config/db.js";
+import { getDbConnection } from "../config/db.js";
+import getSecrets from "../config/config.js"
 
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const jwtSecret = process.env.JWT_SECRET
+const jwtSecret = await getSecrets('JWT_SECRET');
 
 export async function authentication(req, res, next) {
     const token = req.headers.authorization;

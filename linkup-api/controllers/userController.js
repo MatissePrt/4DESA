@@ -1,10 +1,9 @@
 import mssql from "mssql";
 import userSchema from "../models/user.js";
 import bcrypt from "bcrypt";
-import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { getDbConnection } from "../config/db.js";
-dotenv.config();
+import getSecrets from "../config/config.js";
 
 export async function create(req, res) {
   const { name, email, password } = req.body;
@@ -52,10 +51,16 @@ export async function login(req, res) {
   }
 
   try {
+    // Récupérer les secrets du Key Vault
+    const secrets = await getSecrets();
+
+    // Si le secret JWT_SECRET est absent, utiliser une valeur par défaut
+    const jwtSecret = secrets.JWT_SECRET;
+
     const pool = await getDbConnection();
 
     if (!pool) {
-      return res.status(400).json({ message: "Echec de la connexion à la base de données." })
+      return res.status(400).json({ message: "Echec de la connexion à la base de données." });
     }
 
     const result = await pool.request()
@@ -74,8 +79,8 @@ export async function login(req, res) {
     if (!passwordMatch) {
       return res.status(401).json({ error: "Email ou mot de passe invalide." });
     }
-    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, { expiresIn: "1h" }
-    );
+
+    const token = jwt.sign({ userId: user.userId }, jwtSecret, { expiresIn: "1h" });
 
     res.status(200).json({
       message: "Connexion réussie.",

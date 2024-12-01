@@ -1,8 +1,6 @@
 import mssql from "mssql";
 import creatorSchema from "../models/creator.js";
-import dotenv from "dotenv";
 import { getDbConnection } from "../config/db.js";
-dotenv.config();
 
 export async function create(req, res) {
 
