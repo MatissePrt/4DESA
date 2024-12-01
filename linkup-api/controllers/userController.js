@@ -14,14 +14,14 @@ export async function create(req, res) {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10); 
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const pool = await getDbConnection();
 
     const result = await pool.request()
       .input("name", mssql.VarChar, name)
       .input("email", mssql.VarChar, email)
-      .input("password", mssql.VarChar, hashedPassword) 
+      .input("password", mssql.VarChar, hashedPassword)
       .query(`
           INSERT INTO [User] (name, email, password)
           OUTPUT INSERTED.userId

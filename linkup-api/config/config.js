@@ -24,7 +24,7 @@ async function getSecrets() {
       AZURE_STORAGE_CONNECTION: azureStorageConnection.value,
       JWT_SECRET: jwtSecret.value,
       PORT: port.value
-      
+
     };
   } catch (error) {
     console.error("Erreur lors de la récupération des secrets:", error);

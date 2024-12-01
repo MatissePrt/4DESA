@@ -6,15 +6,10 @@ import subRequestRouter from "./routes/subRequestRouter.js"
 import subscriberRouter from "./routes/subscriberRouter.js";
 import { getDbConnection } from "./config/db.js";
 import { initBlobClient } from "./config/blobStorage.js";
-import getSecrets from "./config/config.js";
-
 
 // Initialisation de l'application
 const app = express();
-
-const secrets = await getSecrets();
-const PORT = secrets.PORT || defaultPort;
-
+const PORT = 3000
 
 // Middleware
 app.use(express.json()); // Pour analyser les requêtes au format JSON
@@ -25,12 +20,9 @@ app.use("/api", userRouter);
 app.use("/api", creatorRouter);
 app.use("/api", postRouter);
 app.use("/api", subRequestRouter);
-app.use("/api", subscriberRouter)
+app.use("/api", subscriberRouter);
 
-//Message de bienvenue
-app.get("/", (req, res) => {
-    res.send("Bienvenue sur notre linkup-api!");
-});
+
 
 async function initApp() {
     try {
@@ -44,6 +36,10 @@ async function initApp() {
 
 initApp();
 
+//Message de bienvenue
+app.get("/", (req, res) => {
+    res.send("Bienvenue sur notre linkup-api!");
+});
 // Lancer le serveur
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
