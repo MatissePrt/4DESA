@@ -144,7 +144,6 @@ export async function readAll(req, res) {
       .query(`
         SELECT c.CreatorId, u.Name AS UserName, c.IsPublic
         FROM Creator c JOIN [User] u ON c.UserId = u.UserId
-        WHERE c.IsPublic = 1
       `);
 
     // Vérification si le créateur existe

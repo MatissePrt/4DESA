@@ -22,7 +22,9 @@ app.use("/api", creatorRouter);
 app.use("/api", postRouter);
 app.use("/api", subRequestRouter);
 app.use("/api", subscriberRouter);
-app.use("/", );
+app.use("/", (req, res) => {
+    res.send("Bonjour, bienvenue sur l'API de linkup-app !");
+});
 
 async function initApp() {
     try {
@@ -35,10 +37,6 @@ async function initApp() {
 }
 
 initApp();
-
-app.get("/", (req, res) => {
-    res.send("Bonjour, bienvenue sur l'API de linkup-app !");
-});
 
 // Lancer le serveur
 app.listen(PORT, () => {
