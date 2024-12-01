@@ -14,7 +14,6 @@ async function getSecrets() {
     const dbDatabase = await client.getSecret("DB-DATABASE");
     const azureStorageConnection = await client.getSecret("AZURE-STORAGE-CONNECTION");
     const jwtSecret = await client.getSecret("JWT-SECRET");
-    const port = await client.getSecret("PORT");
 
     return {
       DB_USER: dbUser.value,
@@ -23,7 +22,6 @@ async function getSecrets() {
       DB_DATABASE: dbDatabase.value,
       AZURE_STORAGE_CONNECTION: azureStorageConnection.value,
       JWT_SECRET: jwtSecret.value,
-      PORT: port.value
 
     };
   } catch (error) {

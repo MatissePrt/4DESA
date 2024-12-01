@@ -36,10 +36,7 @@ async function initApp() {
 
 initApp();
 
-//Message de bienvenue
-app.get("/", (req, res) => {
-    res.send("Bienvenue sur notre linkup-api!");
-});
+
 // Lancer le serveur
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
