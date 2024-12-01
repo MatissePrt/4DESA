@@ -10,7 +10,7 @@ import { initBlobClient } from "./config/blobStorage.js";
 // Initialisation de l'application
 const app = express();
 
-const PORT =  process.env.PORT
+const PORT =  process.env.PORT || 3000
 
 // Middleware
 app.use(express.json()); // Pour analyser les requêtes au format JSON
@@ -22,8 +22,7 @@ app.use("/api", creatorRouter);
 app.use("/api", postRouter);
 app.use("/api", subRequestRouter);
 app.use("/api", subscriberRouter);
-
-
+app.use("/", );
 
 async function initApp() {
     try {
@@ -37,6 +36,9 @@ async function initApp() {
 
 initApp();
 
+app.get("/", (req, res) => {
+    res.send("Bonjour, bienvenue sur l'API de linkup-app !");
+});
 
 // Lancer le serveur
 app.listen(PORT, () => {
