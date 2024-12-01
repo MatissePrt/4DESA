@@ -51,10 +51,8 @@ export async function login(req, res) {
   }
 
   try {
-    // Récupérer les secrets du Key Vault
     const secrets = await getSecrets();
 
-    // Si le secret JWT_SECRET est absent, utiliser une valeur par défaut
     const jwtSecret = secrets.JWT_SECRET;
 
     const pool = await getDbConnection();

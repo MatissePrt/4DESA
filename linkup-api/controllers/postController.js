@@ -1,19 +1,16 @@
 import mssql from "mssql";
 import postSchema from "../models/post.js";
-import {getDbConnection} from "../config/db.js";
+import { getDbConnection } from "../config/db.js";
 import { blobServiceClient } from "../config/blobStorage.js";
-import { v4 as uuidv4 } from "uuid"; // Pour générer des noms uniques
+import { v4 as uuidv4 } from "uuid"; 
 import path from "path";
-
-
 
 export async function create(req, res) {
 
-    const {userId, creatorId} = req.params;
-    let {type, content, blobUrl} = req.body;
+    const { userId, creatorId } = req.params;
+    let { type, content, blobUrl } = req.body;
 
 
-    // Vérification si userId et res.locals.userId sont des nombres
     if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
         return res.status(400).json({
             error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" n'est pas un nombre adapté.`
@@ -28,7 +25,6 @@ export async function create(req, res) {
     }
 
 
-    //Vérifier si le créateur existe
     try {
         const pool = await getDbConnection();
 
@@ -41,7 +37,6 @@ export async function create(req, res) {
         WHERE c.CreatorId = @creatorId AND c.UserId = @userId
       `);
 
-        // Vérification si le créateur existe
         if (result.recordset.length === 0) {
             return res.status(404).json({
                 error: "Créateur non trouvé."
@@ -51,11 +46,10 @@ export async function create(req, res) {
         pool.close();
     } catch (err) {
         console.error("Database error:", err);
-        res.status(500).json({error: "Erreur interne du serveur."});
+        res.status(500).json({ error: "Erreur interne du serveur." });
     }
 
 
-    //Si le type est une image ou video, vérifier si le fichier est présent
     if (type === "image" || type === "video") {
         if (!req.file) {
             return res.status(400).json({ error: "Fichier manquant." });
@@ -65,20 +59,17 @@ export async function create(req, res) {
             const containerName = "media";
             const containerClient = blobServiceClient.getContainerClient(containerName);
 
-            // Générer un nom unique pour le fichier
             const fileExtension = path.extname(req.file.originalname);
             const blobName = `${uuidv4()}${fileExtension}`;
 
-            // Uploader le fichier
 
             const blockBlobClient = containerClient.getBlockBlobClient(blobName);
             await blockBlobClient.upload(req.file.buffer, req.file.size, {
                 blobHTTPHeaders: {
-                    blobContentType: req.file.mimetype // Définit le bon Content-Type (ex: image/png, video/mp4)
+                    blobContentType: req.file.mimetype 
                 }
             });
 
-            // Générer l'URL publique
             blobUrl = blockBlobClient.url;
 
             console.log("Fichier uploadé :", blobUrl);
@@ -88,22 +79,20 @@ export async function create(req, res) {
         }
     } else if (type === "text") {
         if (blobUrl) {
-            return res.status(400).json({error: "Le champ 'blobUrl' n'est pas requis pour le type 'text'."});
+            return res.status(400).json({ error: "Le champ 'blobUrl' n'est pas requis pour le type 'text'." });
         }
         if (!content) {
-            return res.status(400).json({error: "Le champ 'content' est requis pour le type 'text'."});
+            return res.status(400).json({ error: "Le champ 'content' est requis pour le type 'text'." });
         }
         blobUrl = null;
     }
 
-    // Valider les données d'entrée
-    const {error} = postSchema.validate({creatorId, type, content, blobUrl});
+    const { error } = postSchema.validate({ creatorId, type, content, blobUrl });
     if (error) {
-        return res.status(400).json({error: error.details[0].message});
+        return res.status(400).json({ error: error.details[0].message });
     }
 
 
-    //Enregistrement du post
 
     try {
         const pool = await getDbConnection();
@@ -127,18 +116,17 @@ export async function create(req, res) {
         pool.close();
     } catch (err) {
         console.error("Database error:", err);
-        res.status(500).json({error: "Erreur interne du serveur."});
+        res.status(500).json({ error: "Erreur interne du serveur." });
     }
 
 
 }
 
 export async function readOne(req, res) {
-        const {userId, creatorId, postId} = req.params;
-        let isReadible = false;
+    const { userId, creatorId, postId } = req.params;
+    let isReadible = false;
 
 
-    // Vérification si userId et res.locals.userId sont des nombres
     if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
         return res.status(400).json({
             error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" n'est pas un nombre adapté.`
@@ -153,119 +141,114 @@ export async function readOne(req, res) {
     }
 
 
-        // Vérification si postId est un nombre
-        if (isNaN(Number(postId))) {
-            return res.status(400).json({
-                error: `postId: "${postId}" n'est pas un nombre adapté.`
-            });
-        }
+    if (isNaN(Number(postId))) {
+        return res.status(400).json({
+            error: `postId: "${postId}" n'est pas un nombre adapté.`
+        });
+    }
 
-        //Vérification de si le créateur est en public
 
-        try {
-            const pool = await getDbConnection();
+    try {
+        const pool = await getDbConnection();
 
-            const result = await pool.request()
-                .input("creatorId", mssql.Int, creatorId)
-                .query(`
+        const result = await pool.request()
+            .input("creatorId", mssql.Int, creatorId)
+            .query(`
             SELECT c.IsPublic
             FROM Creator c
             WHERE c.CreatorId = @creatorId
           `);
 
-            if (result.recordset.length === 0) {
-                return res.status(404).json({
-                    error: "Créateur non trouvé."
-                });
-            }
-
-            const creator = result.recordset[0];
-
-            if (creator.IsPublic) {
-                isReadible = true;
-            }
-            else {
-                console.error("Le créateur n'est pas public.");
-            }
-
-            pool.close();
-        }
-        catch (err) {
-            console.error("Database error:", err);
-            res.status(500).json({error: "Erreur interne du serveur."});
+        if (result.recordset.length === 0) {
+            return res.status(404).json({
+                error: "Créateur non trouvé."
+            });
         }
 
+        const creator = result.recordset[0];
+
+        if (creator.IsPublic) {
+            isReadible = true;
+        }
+        else {
+            console.error("Le créateur n'est pas public.");
+        }
+
+        pool.close();
+    }
+    catch (err) {
+        console.error("Database error:", err);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
 
 
-        //Sinon, vérifier que le requeteur est abonné au créateur
 
-        try {
-            const pool = await getDbConnection();
 
-            const result = await pool.request()
-                .input("userId", mssql.Int, userId)
-                .input("creatorId", mssql.Int, creatorId)
-                .query(`
+    try {
+        const pool = await getDbConnection();
+
+        const result = await pool.request()
+            .input("userId", mssql.Int, userId)
+            .input("creatorId", mssql.Int, creatorId)
+            .query(`
         SELECT s.SubscriberId
         FROM Subscriber s
         WHERE s.UserId = @userId AND s.CreatorId = @creatorId AND s.HasAccess = 1
       `);
 
-            if (result.recordset.length > 0) {
-                isReadible = true;
-            } else {
-                console.error("Le requeteur n'est pas abonné au créateur.");
+        if (result.recordset.length > 0) {
+            isReadible = true;
+        } else {
+            console.error("Le requeteur n'est pas abonné au créateur.");
+        }
+
+        pool.close();
+    } catch (err) {
+        console.error("Database error:", err);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+
+    if (isReadible) {
+        try {
+            const pool = await getDbConnection();
+
+            const result = await pool.request()
+                .input("postId", mssql.Int, postId)
+                .query(`
+            SELECT p.PostId, p.CreatorId, p.Type, p.Content, p.BlobUrl, p.CreatedAt, p.UpdatedAt
+            FROM Post p
+            WHERE p.PostId = @postId
+        `);
+
+            if (result.recordset.length === 0) {
+                return res.status(404).json({
+                    error: "Post non trouvé."
+                });
             }
+
+            const post = result.recordset[0];
+
+            res.json(post);
 
             pool.close();
         } catch (err) {
             console.error("Database error:", err);
             res.status(500).json({ error: "Erreur interne du serveur." });
         }
-
-        if (isReadible) {
-            try {
-                const pool = await getDbConnection();
-
-                const result = await pool.request()
-                    .input("postId", mssql.Int, postId)
-                    .query(`
-            SELECT p.PostId, p.CreatorId, p.Type, p.Content, p.BlobUrl, p.CreatedAt, p.UpdatedAt
-            FROM Post p
-            WHERE p.PostId = @postId
-        `);
-
-                if (result.recordset.length === 0) {
-                    return res.status(404).json({
-                        error: "Post non trouvé."
-                    });
-                }
-
-                const post = result.recordset[0];
-
-                res.json(post);
-
-                pool.close();
-            } catch (err) {
-                console.error("Database error:", err);
-                res.status(500).json({error: "Erreur interne du serveur."});
-            }
-        }
+    }
 
 
 }
 
 export async function readAll(req, res) {
-    const {userId, creatorId} = req.params;
+    const { userId, creatorId } = req.params;
 
-    // Vérification si userId et res.locals.userId sont des nombres
     if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
         return res.status(400).json({
             error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" ne sont pas des nombres adaptés.`
         });
     }
 
-    // Vérification si userId correspond à res.locals.userId
     if (Number(userId) !== Number(res.locals.userId)) {
         return res.status(403).json({
             error: `Non autorisé.`
@@ -275,7 +258,6 @@ export async function readAll(req, res) {
     try {
         const pool = await getDbConnection();
 
-        // Requête pour récupérer les posts
         const result = await pool.request()
             .input("creatorId", mssql.Int, creatorId)
             .query(`
@@ -299,7 +281,6 @@ export async function readAll(req, res) {
 export async function deleteOne(req, res) {
     const { userId, creatorId, postId } = req.params;
 
-    // Vérification si userId et res.locals.userId sont des nombres
     if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
         return res.status(400).json({
             error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" n'est pas un nombre adapté.`
@@ -310,7 +291,6 @@ export async function deleteOne(req, res) {
         return res.status(403).json({ error: "Non autorisé." });
     }
 
-    // Vérification si postId est un nombre
     if (isNaN(Number(postId))) {
         return res.status(400).json({
             error: `postId: "${postId}" n'est pas un nombre adapté.`
@@ -318,7 +298,6 @@ export async function deleteOne(req, res) {
     }
 
     try {
-        // Suppression du media associé au post
         const pool = await getDbConnection();
         const result = await pool.request()
             .input("postId", mssql.Int, postId)
@@ -339,7 +318,6 @@ export async function deleteOne(req, res) {
         }
         pool.close();
 
-        // Suppression du post
         const poolDelete = await getDbConnection();
         const deleteResult = await poolDelete.request()
             .input("postId", mssql.Int, postId)
@@ -361,7 +339,6 @@ export async function deleteOne(req, res) {
 export async function deleteAll(req, res) {
     const { userId, creatorId } = req.params;
 
-    // Vérification si userId et res.locals.userId sont des nombres
     if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
         return res.status(400).json({
             error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" n'est pas un nombre adapté.`
@@ -375,7 +352,6 @@ export async function deleteAll(req, res) {
     try {
         const pool = await getDbConnection();
 
-        // Récupération des URLs des médias associés aux posts
         const result = await pool.request()
             .input("creatorId", mssql.Int, creatorId)
             .query(`
@@ -397,7 +373,6 @@ export async function deleteAll(req, res) {
 
         pool.close();
 
-        // Suppression des posts
         const poolDelete = await getDbConnection();
         const deleteResult = await poolDelete.request()
             .input("creatorId", mssql.Int, creatorId)

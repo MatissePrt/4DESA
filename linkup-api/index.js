@@ -13,8 +13,8 @@ const app = express();
 const PORT = process.env.PORT || 3000
 
 // Middleware
-app.use(express.json()); // Pour analyser les requêtes au format JSON
-app.use(express.urlencoded({ extended: true })); // Pour analyser les données URL encodées
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 
 // Routes
 app.use("/api", userRouter);

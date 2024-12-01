@@ -5,7 +5,6 @@ import upload from "../middlewares/uploadMiddleware.js";
 
 const postRouter = express.Router();
 
-// Route pour créer un post
 postRouter.post("/users/:userId/creators/:creatorId/posts", authentication, upload.single("media"), create);
 postRouter.get("/users/:userId/creators/:creatorId/posts/:postId", authentication, readOne);
 postRouter.get("/users/:userId/creators/:creatorId/posts", authentication, readAll);

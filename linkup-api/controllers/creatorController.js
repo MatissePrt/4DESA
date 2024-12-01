@@ -6,7 +6,6 @@ export async function create(req, res) {
 
   const { userId } = req.params;
 
-  // Vérification si userId et res.locals.userId sont des nombres
   if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
     return res.status(400).json({
       error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" n'est pas un nombre adapté.`
@@ -22,7 +21,6 @@ export async function create(req, res) {
 
   const { isPublic } = req.body;
 
-  // Valider les données d'entrée
   const { error } = creatorSchema.validate({ userId, isPublic });
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
@@ -31,7 +29,6 @@ export async function create(req, res) {
   try {
     const pool = await getDbConnection();
 
-    // Vérifier si un Creator existe déjà pour ce userId
     const existingCreator = await pool.request()
       .input("userId", mssql.Int, userId)
       .query(`SELECT * FROM [Creator] WHERE userId = @userId`);
@@ -66,21 +63,18 @@ export async function create(req, res) {
 export async function readOne(req, res) {
   const { userId, creatorId } = req.params;
 
-  // Vérification si userId et res.locals.userId sont des nombres
   if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
     return res.status(400).json({
       error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" ne sont pas des nombres adaptés.`
     });
   }
 
-  // Vérification si userId correspond à res.locals.userId
   if (Number(userId) !== Number(res.locals.userId)) {
     return res.status(403).json({
       error: `Non autorisé.`
     });
   }
 
-  // Vérification si creatorId est un nombre valide
   if (isNaN(Number(creatorId))) {
     return res.status(400).json({
       error: `creatorId: "${creatorId}" n'est pas un nombre adapté.`
@@ -90,7 +84,6 @@ export async function readOne(req, res) {
   try {
     const pool = await getDbConnection();
 
-    // Requête pour récupérer le créateur
     const result = await pool.request()
       .input("creatorId", mssql.Int, creatorId)
       .query(`
@@ -99,14 +92,12 @@ export async function readOne(req, res) {
         WHERE c.CreatorId = @creatorId
       `);
 
-    // Vérification si le créateur existe
     if (result.recordset.length === 0) {
       return res.status(404).json({
         error: "Créateur non trouvé."
       });
     }
 
-    // Retourner le créateur
     res.status(200).json({
       message: "Créateur trouvé avec succès.",
       creator: result.recordset[0]
@@ -122,14 +113,12 @@ export async function readOne(req, res) {
 export async function readAll(req, res) {
   const { userId } = req.params;
 
-  // Vérification si userId et res.locals.userId sont des nombres
   if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId))) {
     return res.status(400).json({
       error: `userId: "${userId}" et/ou res.locals.userId: "${res.locals.userId}" ne sont pas des nombres adaptés.`
     });
   }
 
-  // Vérification si userId correspond à res.locals.userId
   if (Number(userId) !== Number(res.locals.userId)) {
     return res.status(403).json({
       error: `Non autorisé.`
@@ -139,21 +128,18 @@ export async function readAll(req, res) {
   try {
     const pool = await getDbConnection();
 
-    // Requête pour récupérer le créateur
     const result = await pool.request()
       .query(`
         SELECT c.CreatorId, u.Name AS UserName, c.IsPublic
         FROM Creator c JOIN [User] u ON c.UserId = u.UserId
       `);
 
-    // Vérification si le créateur existe
     if (result.recordset.length === 0) {
       return res.status(404).json({
         error: "Créateur non trouvé."
       });
     }
 
-    // Retourner le créateur
     res.status(200).json({
       message: "Créateur trouvé avec succès.",
       creator: result.recordset
@@ -169,14 +155,12 @@ export async function readAll(req, res) {
 export async function update(req, res) {
   const { userId, creatorId } = req.params;
 
-  // Vérification si userId, res.locals.userId et creatorId sont des nombres
   if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId)) || isNaN(Number(creatorId))) {
     return res.status(400).json({
       error: `userId: "${userId}", res.locals.userId: "${res.locals.userId}", ou creatorId: "${creatorId}" n'est pas un nombre adapté.`
     });
   }
 
-  // Vérification si userId correspond à res.locals.userId
   if (Number(userId) !== Number(res.locals.userId)) {
     return res.status(403).json({
       error: `Non autorisé.`
@@ -185,7 +169,6 @@ export async function update(req, res) {
 
   const { isPublic } = req.body;
 
-  // Valider les données d'entrée
   const { error } = creatorSchema.validate({ userId, isPublic });
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
@@ -194,7 +177,6 @@ export async function update(req, res) {
   try {
     const pool = await getDbConnection();
 
-    // Mise à jour du créateur
     const result = await pool.request()
       .input("userId", mssql.Int, userId)
       .input("creatorId", mssql.Int, creatorId)
@@ -205,7 +187,6 @@ export async function update(req, res) {
         WHERE CreatorId = @creatorId AND UserId = @userId;
       `);
 
-    // Vérification si une ligne a été mise à jour
     if (result.rowsAffected[0] === 0) {
       return res.status(404).json({
         error: "Créateur non trouvé ou aucune modification nécessaire."
@@ -226,14 +207,12 @@ export async function update(req, res) {
 export async function deleteCreator(req, res) {
   const { userId, creatorId } = req.params;
 
-  // Vérification si userId, res.locals.userId et creatorId sont des nombres
   if (isNaN(Number(userId)) || isNaN(Number(res.locals.userId)) || isNaN(Number(creatorId))) {
     return res.status(400).json({
       error: `userId: "${userId}", res.locals.userId: "${res.locals.userId}", ou creatorId: "${creatorId}" n'est pas un nombre adapté.`
     });
   }
 
-  // Vérification si userId correspond à res.locals.userId
   if (Number(userId) !== Number(res.locals.userId)) {
     return res.status(403).json({
       error: `Non autorisé.`
@@ -250,7 +229,6 @@ export async function deleteCreator(req, res) {
         WHERE CreatorId = @creatorId;
       `);
 
-    // Suppression des SubRequests associés
     await pool.request()
       .input("creatorId", mssql.Int, creatorId)
       .query(`
@@ -258,7 +236,6 @@ export async function deleteCreator(req, res) {
         WHERE CreatorId = @creatorId;
       `);
 
-    // Suppression du créateur
     const result = await pool.request()
       .input("userId", mssql.Int, userId)
       .input("creatorId", mssql.Int, creatorId)
@@ -267,7 +244,6 @@ export async function deleteCreator(req, res) {
         WHERE CreatorId = @creatorId AND UserId = @userId;
       `);
 
-    // Vérification si une ligne a été supprimée
     if (result.rowsAffected[0] === 0) {
       return res.status(404).json({
         error: "Créateur non trouvé ou aucune suppression nécessaire."
