@@ -11,7 +11,10 @@ import getSecrets from "./config/config.js";
 
 // Initialisation de l'application
 const app = express();
-const PORT = await getSecrets('PORT')
+
+const secrets = await getSecrets();
+const PORT = secrets.PORT || defaultPort;
+
 
 // Middleware
 app.use(express.json()); // Pour analyser les requêtes au format JSON
