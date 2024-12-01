@@ -201,6 +201,30 @@ export async function readOne(req, res) {
 
         //Sinon, vérifier que le requeteur est abonné au créateur
 
+        try {
+            const pool = await getDbConnection();
+
+            const result = await pool.request()
+                .input("userId", mssql.Int, userId)
+                .input("creatorId", mssql.Int, creatorId)
+                .query(`
+        SELECT s.SubscriberId
+        FROM Subscriber s
+        WHERE s.UserId = @userId AND s.CreatorId = @creatorId AND s.HasAccess = 1
+      `);
+
+            if (result.recordset.length > 0) {
+                isReadible = true;
+            } else {
+                console.error("Le requeteur n'est pas abonné au créateur.");
+            }
+
+            pool.close();
+        } catch (err) {
+            console.error("Database error:", err);
+            res.status(500).json({ error: "Erreur interne du serveur." });
+        }
+
         if (isReadible) {
             try {
                 const pool = await getDbConnection();
