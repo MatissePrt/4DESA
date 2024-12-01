@@ -22,7 +22,7 @@ app.use("/api", creatorRouter);
 app.use("/api", postRouter);
 app.use("/api", subRequestRouter);
 app.use("/api", subscriberRouter);
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
     res.send("Bonjour, bienvenue sur l'API de linkup-app !");
 });
 
