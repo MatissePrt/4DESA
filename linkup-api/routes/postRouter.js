@@ -1,5 +1,5 @@
 import express from "express";
-import {create, deleteAll, deleteOne, readOne, readAll} from "../controllers/postController.js";
+import {create, deleteAll, deleteOne, readOne, readAll, update} from "../controllers/postController.js";
 import {authentication} from "../middlewares/authentication.js";
 import upload from "../middlewares/uploadMiddleware.js";
 
