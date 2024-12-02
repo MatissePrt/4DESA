@@ -3,8 +3,8 @@ import mssql from "mssql";
 import { getDbConnection } from "../config/db.js";
 import getSecrets from "../config/config.js"
 
-
-const jwtSecret = await getSecrets('JWT-SECRET');
+const secrets = await getSecrets();
+const jwtSecret = secrets.JWT-SECRET;
 
 export async function authentication(req, res, next) {
     const token = req.headers.authorization;
