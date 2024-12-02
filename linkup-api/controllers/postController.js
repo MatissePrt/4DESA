@@ -75,14 +75,14 @@ export async function create(req, res) {
             console.log("Fichier uploadé :", blobUrl);
         } catch (err) {
             console.error("Erreur lors de l'upload sur Azure Blob Storage :", err);
-            return res.status(500).json({ error: "Erreur lors de l'upload du fichier." });
+            return res.status(500).json({ error: "Erreur lors de l'upload du fichier.", err });
         }
     } else if (type === "text") {
         if (blobUrl) {
-            return res.status(400).json({ error: "Le champ 'blobUrl' n'est pas requis pour le type 'text'." });
+            return res.status(400).json({ error: "Le champ 'blobUrl' n'est pas requis pour le type 'text'.", err });
         }
         if (!content) {
-            return res.status(400).json({ error: "Le champ 'content' est requis pour le type 'text'." });
+            return res.status(400).json({ error: "Le champ 'content' est requis pour le type 'text'.", err});
         }
         blobUrl = null;
     }
