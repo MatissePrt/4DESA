@@ -4,7 +4,7 @@ import { getDbConnection } from "../config/db.js";
 import getSecrets from "../config/config.js"
 
 
-const jwtSecret = await getSecrets('JWT_SECRET');
+const jwtSecret = await getSecrets('JWT-SECRET');
 
 export async function authentication(req, res, next) {
     const token = req.headers.authorization;
