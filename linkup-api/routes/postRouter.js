@@ -1,10 +1,9 @@
-import express from 'express';
-import multer from 'multer';
-import { create, readOne, readAll, update, deleteOne, deleteAll } from '../controllers/postController.js';
+import express from "express";
+import {create, deleteAll, deleteOne, readOne, readAll, update} from "../controllers/postController.js";
+import {authentication} from "../middlewares/authentication.js";
+import upload from "../middlewares/uploadMiddleware.js";
 
-const upload = multer(); // Initialisation de multer sans configuration particulière (ajusté selon les besoins)
-
-const router = express.Router();
+const postRouter = express.Router();
 
 /**
  * @swagger
@@ -15,7 +14,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}:
+ * /users/{userId}/creators/{creatorId}/posts:
  *   post:
  *     summary: Crée un post pour un créateur donné avec la possibilité d'ajouter un fichier multimédia.
  *     tags: [Post]
@@ -85,15 +84,12 @@ const router = express.Router();
  *       500:
  *         description: Erreur interne du serveur.
  */
-
-
-
-router.post('/:userId/:creatorId', upload.single('media'), create);
+postRouter.post("/users/:userId/creators/:creatorId/posts", authentication, upload.single("media"), create);
 
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}/{postId}:
+ * /users/{userId}/creators/{creatorId}/posts/{postId}:
  *   get:
  *     summary: Récupère un post spécifique pour un créateur donné.
  *     tags: [Post]
@@ -130,11 +126,11 @@ router.post('/:userId/:creatorId', upload.single('media'), create);
  *       500:
  *         description: Erreur serveur.
  */
-router.get('/:userId/:creatorId/:postId', readOne);
+postRouter.get("/users/:userId/creators/:creatorId/posts/:postId", authentication, readOne);
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}:
+ * /users/{userId}/creators/{creatorId}/posts:
  *   get:
  *     summary: Récupère tous les posts pour un créateur donné.
  *     tags: [Post]
@@ -165,11 +161,11 @@ router.get('/:userId/:creatorId/:postId', readOne);
  *       500:
  *         description: Erreur serveur.
  */
-router.get('/:userId/:creatorId', readAll);
+postRouter.get("/users/:userId/creators/:creatorId/posts", authentication, readAll);
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}/{postId}:
+ * /users/{userId}/creators/{creatorId}/posts/{postId}/update:
  *   put:
  *     summary: Met à jour un post pour un créateur donné.
  *     tags: [Post]
@@ -234,12 +230,12 @@ router.get('/:userId/:creatorId', readAll);
  *       500:
  *         description: Erreur serveur.
  */
-router.put('/:userId/:creatorId/:postId', upload.single('media'), update);
+postRouter.put("/users/:userId/creators/:creatorId/posts/:postId/update", authentication, upload.single("media"), update);
 
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}/{postId}:
+ * /users/{userId}/creators/{creatorId}/posts/{postId}:
  *   delete:
  *     summary: Supprime un post spécifique.
  *     tags: [Post]
@@ -276,11 +272,11 @@ router.put('/:userId/:creatorId/:postId', upload.single('media'), update);
  *       500:
  *         description: Erreur serveur.
  */
-router.delete('/:userId/:creatorId/:postId', deleteOne);
+postRouter.delete("/users/:userId/creators/:creatorId/posts/:postId", authentication, deleteOne);
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}:
+ * /users/{userId}/creators/{creatorId}/posts:
  *   delete:
  *     summary: Supprime tous les posts pour un créateur donné.
  *     tags: [Post]
@@ -309,6 +305,6 @@ router.delete('/:userId/:creatorId/:postId', deleteOne);
  *       500:
  *         description: Erreur serveur.
  */
-router.delete('/:userId/:creatorId', deleteAll);
+postRouter.delete("/users/:userId/creators/:creatorId/posts", authentication, deleteAll);
 
-export default router;
+export default postRouter();
