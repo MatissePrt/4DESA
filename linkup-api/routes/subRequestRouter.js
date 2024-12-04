@@ -6,7 +6,7 @@ const subRequestRouter = express.Router();
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/subRequests:
+ * /api/users/{userId}/creators/{creatorId}/subRequests:
  *   post:
  *     summary: Créer une nouvelle demande d'abonnement
  *     description: Crée une nouvelle demande d'abonnement pour un utilisateur spécifique.
@@ -44,7 +44,7 @@ subRequestRouter.post("/users/:userId/creators/:creatorId/subRequests", authenti
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/subRequests:
+ * /api/users/{userId}/creators/{creatorId}/subRequests:
  *   get:
  *     summary: Récupérer toutes les demandes d'abonnement
  *     description: Retourne toutes les demandes d'abonnement pour un créateur spécifique d'un utilisateur authentifié.
@@ -97,7 +97,7 @@ subRequestRouter.get("/users/:userId/creators/:creatorId/subRequests", authentic
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/subRequests/{subRequestId}:
+ * /api/users/{userId}/creators/{creatorId}/subRequests/{subRequestId}:
  *   get:
  *     summary: Récupérer une demande d'abonnement spécifique
  *     description: Retourne une demande d'abonnement spécifique pour un créateur et un utilisateur donnés.
@@ -154,7 +154,7 @@ subRequestRouter.get("/users/:userId/creators/:creatorId/subRequests/:subRequest
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/subRequests/{subRequestId}:
+ * /api/users/{userId}/creators/{creatorId}/subRequests/{subRequestId}:
  *   delete:
  *     summary: Supprimer une demande d'abonnement
  *     description: Supprime une demande d'abonnement spécifique pour un créateur et un utilisateur donnés.

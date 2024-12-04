@@ -13,7 +13,7 @@ const creatorRouter = express.Router();
 
 /**
  * @swagger
- * /users/{userId}/creators:
+ * /api/users/{userId}/creators:
  *   post:
  *     summary: Crée un créateur pour un utilisateur donné.
  *     tags: [Creator]
@@ -51,7 +51,7 @@ creatorRouter.post("/users/:userId/creators", authentication, create);
 
 /**
  * @swagger
- * /users/{userId}/creators:
+ * /api/users/{userId}/creators:
  *   get:
  *     summary: Récupère tous les créateurs pour un utilisateur donné.
  *     tags: [Creator]
@@ -74,7 +74,7 @@ creatorRouter.get("/users/:userId/creators", authentication, readAll);
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}:
+ * /api/users/{userId}/creators/{creatorId}:
  *   get:
  *     summary: Récupère un créateur spécifique pour un utilisateur donné.
  *     tags: [Creator]
@@ -103,7 +103,7 @@ creatorRouter.get("/users/:userId/creators/:creatorId", authentication, readOne)
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}:
+ * /api/users/{userId}/creators/{creatorId}:
  *   put:
  *     summary: Met à jour un créateur pour un utilisateur donné.
  *     tags: [Creator]
@@ -147,7 +147,7 @@ creatorRouter.put("/users/:userId/creators/:creatorId", authentication, update);
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}:
+ * /api/users/{userId}/creators/{creatorId}:
  *   delete:
  *     summary: Supprime un créateur pour un utilisateur donné.
  *     tags: [Creator]

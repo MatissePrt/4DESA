@@ -14,7 +14,7 @@ const postRouter = express.Router();
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/posts:
+ * /api/users/{userId}/creators/{creatorId}/posts:
  *   post:
  *     summary: Crée un post pour un créateur donné avec la possibilité d'ajouter un fichier multimédia.
  *     tags: [Post]
@@ -89,7 +89,7 @@ postRouter.post("/users/:userId/creators/:creatorId/posts", authentication, uplo
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/posts/{postId}:
+ * /api/users/{userId}/creators/{creatorId}/posts/{postId}:
  *   get:
  *     summary: Récupère un post spécifique pour un créateur donné.
  *     tags: [Post]
@@ -130,7 +130,7 @@ postRouter.get("/users/:userId/creators/:creatorId/posts/:postId", authenticatio
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/posts:
+ * /api/users/{userId}/creators/{creatorId}/posts:
  *   get:
  *     summary: Récupère tous les posts pour un créateur donné.
  *     tags: [Post]
@@ -165,7 +165,7 @@ postRouter.get("/users/:userId/creators/:creatorId/posts", authentication, readA
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/posts/{postId}/update:
+ * /api/users/{userId}/creators/{creatorId}/posts/{postId}/update:
  *   put:
  *     summary: Met à jour un post pour un créateur donné.
  *     tags: [Post]
@@ -235,7 +235,7 @@ postRouter.put("/users/:userId/creators/:creatorId/posts/:postId/update", authen
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/posts/{postId}:
+ * /api/users/{userId}/creators/{creatorId}/posts/{postId}:
  *   delete:
  *     summary: Supprime un post spécifique.
  *     tags: [Post]
@@ -276,7 +276,7 @@ postRouter.delete("/users/:userId/creators/:creatorId/posts/:postId", authentica
 
 /**
  * @swagger
- * /users/{userId}/creators/{creatorId}/posts:
+ * /api/users/{userId}/creators/{creatorId}/posts:
  *   delete:
  *     summary: Supprime tous les posts pour un créateur donné.
  *     tags: [Post]
