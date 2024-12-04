@@ -15,9 +15,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}/{postId}:
- *   put:
- *     summary: Met à jour un post pour un créateur donné.
+ * /posts/{userId}/{creatorId}:
+ *   post:
+ *     summary: Crée un post pour un créateur donné.
  *     tags: [Post]
  *     parameters:
  *       - name: userId
@@ -32,12 +32,6 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: integer
- *       - name: postId
- *         in: path
- *         description: ID du post
- *         required: true
- *         schema:
- *           type: integer
  *       - name: Authorization
  *         in: header
  *         required: true
@@ -45,7 +39,7 @@ const router = express.Router();
  *           type: string
  *         description: Token JWT pour l'authentification.
  *     requestBody:
- *       description: Données du post à mettre à jour
+ *       description: Données du post à créer
  *       required: true
  *       content:
  *         multipart/form-data:
@@ -59,7 +53,7 @@ const router = express.Router();
  *               content:
  *                 type: string
  *                 description: Le contenu du post (facultatif si le type est autre que 'texte').
- *                 example: "Voici une belle image mise à jour!"
+ *                 example: "Voici une belle image!"
  *               media:
  *                 type: string
  *                 format: binary
@@ -67,16 +61,13 @@ const router = express.Router();
  *             required:
  *               - type
  *     responses:
- *       200:
- *         description: Post mis à jour avec succès.
+ *       201:
+ *         description: Post créé avec succès.
  *       400:
  *         description: Erreur de validation des données.
- *       404:
- *         description: Post non trouvé.
  *       500:
  *         description: Erreur serveur.
  */
-
 router.post('/:userId/:creatorId', upload.single('media'), create);
 
 
@@ -220,7 +211,6 @@ router.get('/:userId/:creatorId', readAll);
  *         description: Erreur serveur.
  */
 router.put('/:userId/:creatorId/:postId', upload.single('media'), update);
-
 
 
 /**
