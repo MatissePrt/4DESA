@@ -307,4 +307,4 @@ postRouter.delete("/users/:userId/creators/:creatorId/posts/:postId", authentica
  */
 postRouter.delete("/users/:userId/creators/:creatorId/posts", authentication, deleteAll);
 
-export default postRouter();
+export default postRouter;
