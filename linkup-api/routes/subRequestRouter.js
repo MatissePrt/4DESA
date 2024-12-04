@@ -24,12 +24,8 @@ const subRequestRouter = express.Router();
  *         schema:
  *           type: integer
  *         description: ID du créateur.
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       201:
  *         description: Demande d'abonnement créée avec succès.
@@ -62,12 +58,8 @@ subRequestRouter.post("/users/:userId/creators/:creatorId/subRequests", authenti
  *         schema:
  *           type: integer
  *         description: ID du créateur.
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Succès, retourne la liste des demandes d'abonnement.
@@ -121,12 +113,8 @@ subRequestRouter.get("/users/:userId/creators/:creatorId/subRequests", authentic
  *         schema:
  *           type: integer
  *         description: ID de la demande d'abonnement.
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Succès, retourne la demande d'abonnement.
@@ -178,12 +166,8 @@ subRequestRouter.get("/users/:userId/creators/:creatorId/subRequests/:subRequest
  *         schema:
  *           type: integer
  *         description: ID de la demande d'abonnement.
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Succès, demande d'abonnement supprimée.

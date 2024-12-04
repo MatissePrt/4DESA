@@ -108,12 +108,8 @@ postRouter.post("/users/:userId/creators/:creatorId/posts", authentication, uplo
  *         required: true
  *         schema:
  *           type: integer
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Détails du post récupérés avec succès.
@@ -143,12 +139,8 @@ postRouter.get("/users/:userId/creators/:creatorId/posts/:postId", authenticatio
  *         required: true
  *         schema:
  *           type: integer
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Liste des posts récupérés avec succès.
@@ -184,12 +176,6 @@ postRouter.get("/users/:userId/creators/:creatorId/posts", authentication, readA
  *         required: true
  *         schema:
  *           type: integer
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
  *     requestBody:
  *       description: Données du post à mettre à jour
  *       required: true
@@ -216,6 +202,8 @@ postRouter.get("/users/:userId/creators/:creatorId/posts", authentication, readA
  *                 description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
  *             required:
  *               - type
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Post mis à jour avec succès.
@@ -254,12 +242,8 @@ postRouter.put("/users/:userId/creators/:creatorId/posts/:postId/update", authen
  *         required: true
  *         schema:
  *           type: integer
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Post supprimé avec succès.
@@ -289,12 +273,8 @@ postRouter.delete("/users/:userId/creators/:creatorId/posts/:postId", authentica
  *         required: true
  *         schema:
  *           type: integer
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Tous les posts supprimés avec succès.

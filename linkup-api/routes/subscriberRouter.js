@@ -24,12 +24,8 @@ const subscriberRouter = express.Router();
  *         schema:
  *           type: integer
  *         description: ID du créateur.
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Succès
@@ -83,12 +79,8 @@ subscriberRouter.get("/users/:userId/creators/:creatorId/subscribers", authentic
  *         schema:
  *           type: integer
  *         description: ID de l'abonné.
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Succès
@@ -134,12 +126,8 @@ subscriberRouter.get("/users/:userId/creators/:creatorId/subscribers", authentic
  *         schema:
  *           type: integer
  *         description: ID de l'abonné.
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Succès, abonné supprimé.
@@ -178,12 +166,8 @@ subscriberRouter.get("/users/:userId/creators/:creatorId/subscribers/:subcriberI
  *         schema:
  *           type: integer
  *         description: ID de l'abonné.
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Succès, abonné supprimé.

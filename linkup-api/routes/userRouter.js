@@ -145,6 +145,8 @@ userRouter.get("/users/:userId", authentication, readOne);
  *               password:
  *                 type: string
  *                 description: Mot de passe de l'utilisateur
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Utilisateur mis à jour avec succès.

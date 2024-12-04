@@ -37,6 +37,8 @@ const creatorRouter = express.Router();
  *                 description: Statut de visibilité du créateur.
  *             required:
  *               - isPublic
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       201:
  *         description: Créateur créé avec succès.
@@ -62,6 +64,8 @@ creatorRouter.post("/users/:userId/creators", authentication, create);
  *         required: true
  *         schema:
  *           type: integer
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Liste des créateurs récupérée avec succès.
@@ -91,6 +95,8 @@ creatorRouter.get("/users/:userId/creators", authentication, readAll);
  *         required: true
  *         schema:
  *           type: integer
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Détails du créateur récupérés avec succès.
@@ -133,6 +139,8 @@ creatorRouter.get("/users/:userId/creators/:creatorId", authentication, readOne)
  *                 description: Statut de visibilité du créateur.
  *             required:
  *               - isPublic
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Créateur mis à jour avec succès.
@@ -164,6 +172,8 @@ creatorRouter.put("/users/:userId/creators/:creatorId", authentication, update);
  *         required: true
  *         schema:
  *           type: integer
+ *     security:
+ *     - bearerAuth: []
  *     responses:
  *       200:
  *         description: Créateur supprimé avec succès.
