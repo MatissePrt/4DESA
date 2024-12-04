@@ -26,8 +26,13 @@ const swaggerOptions = {
         servers: [
             {
                 url: `http://localhost:${PORT}/api`,
-                description: "Serveur Azure",
+                description: "Serveur local",
             },
+            {
+                url: "https://linkup-app-f8guebe2dfddaggt.francecentral-01.azurewebsites.net/",
+                description: "Serveur de production",
+            }
+
         ],
     },
     apis: ["./routes/*.js"], // Chemin vers les fichiers contenant les endpoints
