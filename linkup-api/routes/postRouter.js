@@ -9,7 +9,7 @@ const postRouter = express.Router();
  * @swagger
  * tags:
  *   - name: Post
- *     description: API pour gérer les posts.
+ *     description: API pour gérer les posts .
  */
 
 /**
