@@ -46,6 +46,7 @@ const router = express.Router();
  *         name: content
  *         type: string
  *         description: Le contenu du post.
+
  *         - in: formData
  *         name: media
  *         type: file
@@ -55,6 +56,23 @@ const router = express.Router();
  *       required: true
  *       content:
  *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: Le contenu du post (facultatif si le type est autre que 'texte').
+ *                 example: "Voici une belle image!"
+ *
+ *                 type:
+ *                 type: string
+ *                 description: Le type de post (image, vidéo, texte).
+ *                 example: "image"
+ *
+ *                 media:
+ *                 type: file
+ *                 description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
+ *                 example: "image.jpg"
  *             required:
  *               - type
  *     responses:
