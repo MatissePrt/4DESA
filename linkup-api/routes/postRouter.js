@@ -60,7 +60,7 @@ const postRouter = express.Router();
  *             required:
  *               - type
  *     security:
- *       - basicAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       201:
  *         description: Post créé avec succès.
