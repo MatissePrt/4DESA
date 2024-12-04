@@ -17,7 +17,7 @@ const router = express.Router();
  * @swagger
  * /posts/{userId}/{creatorId}:
  *   post:
- *     summary: Crée un post pour un créateur donné.
+ *     summary: Crée un post pour un créateur donné avec option d'ajouter un fichier multimédia.
  *     tags: [Post]
  *     parameters:
  *       - name: userId
@@ -39,7 +39,7 @@ const router = express.Router();
  *           type: string
  *         description: Token JWT pour l'authentification.
  *     requestBody:
- *       description: Données du post à créer
+ *       description: Données du post à créer, incluant un fichier multimédia.
  *       required: true
  *       content:
  *         multipart/form-data:
@@ -58,16 +58,18 @@ const router = express.Router();
  *                 type: string
  *                 format: binary
  *                 description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
+ *                 example: /path/to/media/image.jpg
  *             required:
  *               - type
  *     responses:
  *       201:
  *         description: Post créé avec succès.
  *       400:
- *         description: Erreur de validation des données.
+ *         description: Erreur de validation des données (par exemple, type de fichier non valide).
  *       500:
  *         description: Erreur serveur.
  */
+
 router.post('/:userId/:creatorId', upload.single('media'), create);
 
 
