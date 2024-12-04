@@ -15,9 +15,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}/{postId}:
- *   put:
- *     summary: Met à jour un post pour un créateur donné avec option d'ajouter un fichier multimédia.
+ * /posts/{userId}/{creatorId}:
+ *   post:
+ *     summary: Crée un post pour un créateur donné avec la possibilité d'ajouter un fichier multimédia.
  *     tags: [Post]
  *     parameters:
  *       - name: userId
@@ -32,12 +32,6 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: integer
- *       - name: postId
- *         in: path
- *         description: ID du post
- *         required: true
- *         schema:
- *           type: integer
  *       - name: Authorization
  *         in: header
  *         required: true
@@ -45,7 +39,7 @@ const router = express.Router();
  *           type: string
  *         description: Token JWT pour l'authentification.
  *     requestBody:
- *       description: Données du post à mettre à jour, incluant un fichier multimédia.
+ *       description: Données nécessaires pour créer un post, incluant un fichier multimédia.
  *       required: true
  *       content:
  *         multipart/form-data:
@@ -58,27 +52,38 @@ const router = express.Router();
  *                 required: true
  *                 enum: [image, video, text]
  *                 default: text
+ *                 example: "image"
  *               content:
  *                 type: string
- *                 description: Le contenu du post (facultatif si le type est autre que 'texte').
- *                 example: "Voici une belle image mise à jour !"
- *                 default: ""
+ *                 description: Le contenu textuel du post (optionnel si le type est autre que 'texte').
  *                 nullable: true
+ *                 default: ""
+ *                 example: "Voici une belle image !"
  *               media:
  *                 type: string
  *                 format: binary
- *                 description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
+ *                 description: Fichier multimédia à associer au post (optionnel si le type est 'texte').
+ *                 example: "image.jpg"
  *             required:
  *               - type
  *     responses:
- *       200:
- *         description: Post mis à jour avec succès.
+ *       201:
+ *         description: Post créé avec succès.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Post créé avec succès."
+ *                 postId:
+ *                   type: integer
+ *                   example: 123
  *       400:
- *         description: Erreur de validation des données (par exemple, type de fichier non valide).
- *       404:
- *         description: Post non trouvé.
+ *         description: Erreur de validation des données (par exemple, type de fichier non valide ou champ requis manquant).
  *       500:
- *         description: Erreur serveur.
+ *         description: Erreur interne du serveur.
  */
 
 
