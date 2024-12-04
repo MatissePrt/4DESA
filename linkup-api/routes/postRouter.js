@@ -38,27 +38,23 @@ const router = express.Router();
  *         schema:
  *           type: string
  *         description: Token JWT pour l'authentification.
+ *         -in: formData
+ *         name: type
+ *         type: string
+ *         description: Le type de post (image, vidéo, texte).
+ *         -in: formData
+ *         name: content
+ *         type: string
+ *         description: Le contenu du post.
+ *         - in: formData
+ *         name: media
+ *         type: file
+ *         description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
  *     requestBody:
  *       description: Données du post à créer, incluant un fichier multimédia.
  *       required: true
  *       content:
  *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               type:
- *                 type: string
- *                 description: Le type de post (image, vidéo, texte).
- *                 example: "image"
- *               content:
- *                 type: string
- *                 description: Le contenu du post (facultatif si le type est autre que 'texte').
- *                 example: "Voici une belle image!"
- *               media:
- *                 type: string
- *                 format: binary
- *                 description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
- *                 example: /path/to/media/image.jpg
  *             required:
  *               - type
  *     responses:
