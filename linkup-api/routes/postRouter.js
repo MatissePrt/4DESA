@@ -15,9 +15,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /posts/{userId}/{creatorId}:
- *   post:
- *     summary: Crée un post pour un créateur donné avec option d'ajouter un fichier multimédia.
+ * /posts/{userId}/{creatorId}/{postId}:
+ *   put:
+ *     summary: Met à jour un post pour un créateur donné avec option d'ajouter un fichier multimédia.
  *     tags: [Post]
  *     parameters:
  *       - name: userId
@@ -32,57 +32,56 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: postId
+ *         in: path
+ *         description: ID du post
+ *         required: true
+ *         schema:
+ *           type: integer
  *       - name: Authorization
  *         in: header
  *         required: true
  *         schema:
  *           type: string
  *         description: Token JWT pour l'authentification.
- *         -in: formData
- *         name: type
- *         type: string
- *         description: Le type de post (image, vidéo, texte).
- *         -in: formData
- *         name: content
- *         type: string
- *         description: Le contenu du post.
-
- *         - in: formData
- *         name: media
- *         type: file
- *         description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
  *     requestBody:
- *       description: Données du post à créer, incluant un fichier multimédia.
+ *       description: Données du post à mettre à jour, incluant un fichier multimédia.
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
+ *               type:
+ *                 type: string
+ *                 description: Le type de post (image, vidéo, texte).
+ *                 required: true
+ *                 enum: [image, video, text]
+ *                 default: text
  *               content:
  *                 type: string
  *                 description: Le contenu du post (facultatif si le type est autre que 'texte').
- *                 example: "Voici une belle image!"
- *
- *                 type:
+ *                 example: "Voici une belle image mise à jour !"
+ *                 default: ""
+ *                 nullable: true
+ *               media:
  *                 type: string
- *                 description: Le type de post (image, vidéo, texte).
- *                 example: "image"
- *
- *                 media:
- *                 type: file
+ *                 format: binary
  *                 description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
- *                 example: "image.jpg"
  *             required:
  *               - type
  *     responses:
- *       201:
- *         description: Post créé avec succès.
+ *       200:
+ *         description: Post mis à jour avec succès.
  *       400:
  *         description: Erreur de validation des données (par exemple, type de fichier non valide).
+ *       404:
+ *         description: Post non trouvé.
  *       500:
  *         description: Erreur serveur.
  */
+
+
 
 router.post('/:userId/:creatorId', upload.single('media'), create);
 
@@ -204,12 +203,16 @@ router.get('/:userId/:creatorId', readAll);
  *             properties:
  *               type:
  *                 type: string
- *                 description: Le type de post (image, vidéo, texte).
- *                 example: "image"
+ *                 description: Le type de post (image, video, text).
+ *                 required: true
+ *                 enum: [image, video, text]
+ *                 default: text
  *               content:
  *                 type: string
- *                 description: Le contenu du post (facultatif si le type est autre que 'texte').
- *                 example: "Voici une belle image mise à jour!"
+ *                 description: Le contenu du post (facultatif si le type est autre que 'text').
+ *                 example: "Voici une belle image mise à jour !"
+ *                 default: ""
+ *                 nullable: true
  *               media:
  *                 type: string
  *                 format: binary
