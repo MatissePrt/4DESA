@@ -31,12 +31,6 @@ const postRouter = express.Router();
  *         required: true
  *         schema:
  *           type: integer
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT pour l'authentification.
  *     requestBody:
  *       description: Données nécessaires pour créer un post, incluant un fichier multimédia.
  *       required: true
@@ -65,6 +59,8 @@ const postRouter = express.Router();
  *                 example: "image.jpg"
  *             required:
  *               - type
+ *     security:
+ *       - basicAuth: []
  *     responses:
  *       201:
  *         description: Post créé avec succès.

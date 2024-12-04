@@ -34,6 +34,19 @@ const swaggerOptions = {
             }
 
         ],
+        components: {
+            securitySchemes: {
+                basicAuth: {
+                    type: "http",
+                    scheme: "basic",
+                },
+            },
+        },
+        security: [
+            {
+                basicAuth: [],
+            },
+        ],
     },
     apis: ["./routes/*.js"], // Chemin vers les fichiers contenant les endpoints
 };
