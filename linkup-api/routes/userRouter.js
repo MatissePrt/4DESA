@@ -120,10 +120,15 @@ userRouter.get("/users/:userId", authentication, readOne);
  *         name: userId
  *         required: true
  *         schema:
+ *         - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT pour l'authentification.
  *           type: integer
  *         description: ID de l'utilisateur
- *     security:
- *       - bearerAuth: []
+ *
  *     requestBody:
  *       required: true
  *       content:
@@ -163,6 +168,12 @@ userRouter.put("/users/:userId", authentication, update);
  *         schema:
  *           type: integer
  *         description: ID de l'utilisateur
+ *        - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT pour l'authentification.
  *     security:
  *       - bearerAuth: []
  *     responses:

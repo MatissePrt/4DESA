@@ -32,6 +32,12 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT pour l'authentification.
  *     requestBody:
  *       description: Données du post à créer
  *       required: true
@@ -86,6 +92,12 @@ router.post('/:userId/:creatorId', upload.single('file'), create);
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT pour l'authentification.
  *     responses:
  *       200:
  *         description: Détails du post récupérés avec succès.
@@ -115,6 +127,12 @@ router.get('/:userId/:creatorId/:postId', readOne);
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT pour l'authentification.
  *     responses:
  *       200:
  *         description: Liste des posts récupérés avec succès.
@@ -150,6 +168,12 @@ router.get('/:userId/:creatorId', readAll);
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT pour l'authentification.
  *     requestBody:
  *       description: Données du post à mettre à jour
  *       required: true
@@ -206,6 +230,12 @@ router.put('/:userId/:creatorId/:postId', upload.single('file'), update);
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT pour l'authentification.
  *     responses:
  *       200:
  *         description: Post supprimé avec succès.
@@ -235,6 +265,12 @@ router.delete('/:userId/:creatorId/:postId', deleteOne);
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT pour l'authentification.
  *     responses:
  *       200:
  *         description: Tous les posts supprimés avec succès.
