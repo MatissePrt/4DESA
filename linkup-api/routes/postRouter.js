@@ -42,19 +42,22 @@ const router = express.Router();
  *       description: Données du post à créer
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               type:
  *                 type: string
  *                 description: Le type de post (image, vidéo, texte).
+ *                 example: "image"
  *               content:
  *                 type: string
- *                 description: Le contenu du post (requis si type est 'text').
- *               blobUrl:
+ *                 description: Le contenu du post (facultatif si le type est autre que 'texte').
+ *                 example: "Voici une belle image!"
+ *               media:
  *                 type: string
- *                 description: L'URL du fichier multimédia (requis si type est 'image' ou 'video').
+ *                 format: binary
+ *                 description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
  *             required:
  *               - type
  *     responses:
@@ -65,7 +68,8 @@ const router = express.Router();
  *       500:
  *         description: Erreur serveur.
  */
-router.post('/:userId/:creatorId', upload.single('file'), create);
+router.post('/:userId/:creatorId', upload.single('media'), create);
+
 
 /**
  * @swagger
@@ -178,19 +182,22 @@ router.get('/:userId/:creatorId', readAll);
  *       description: Données du post à mettre à jour
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               type:
  *                 type: string
  *                 description: Le type de post (image, vidéo, texte).
+ *                 example: "image"
  *               content:
  *                 type: string
- *                 description: Le contenu du post (requis si type est 'text').
- *               blobUrl:
+ *                 description: Le contenu du post (facultatif si le type est autre que 'texte').
+ *                 example: "Voici une belle image mise à jour!"
+ *               media:
  *                 type: string
- *                 description: L'URL du fichier multimédia (requis si type est 'image' ou 'video').
+ *                 format: binary
+ *                 description: Fichier multimédia (facultatif, utilisé si type est 'image' ou 'vidéo').
  *             required:
  *               - type
  *     responses:
@@ -203,7 +210,8 @@ router.get('/:userId/:creatorId', readAll);
  *       500:
  *         description: Erreur serveur.
  */
-router.put('/:userId/:creatorId/:postId', upload.single('file'), update);
+router.put('/:userId/:creatorId/:postId', upload.single('media'), update);
+
 
 /**
  * @swagger
